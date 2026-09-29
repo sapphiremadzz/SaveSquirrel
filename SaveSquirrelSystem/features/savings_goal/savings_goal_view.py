@@ -11,6 +11,30 @@ from features.savings_goal.service3 import ServiceGoal
 from features.savings_goal.model3 import SavingsGoal
 from features.savings_management.service import SavingsService
 
+msg_font = QFont("Arial", 11)
+white_bg_style = """
+                                   QMessageBox {
+                                       background-color: #5c826f;
+                                   }
+                                   QMessageBox QLabel {
+                                       color: white;
+                                       background-color: transparent;
+                                       border: none;
+                                   }
+                                   QMessageBox QPushButton { 
+                                       background-color: #ffffff; 
+                                       color: #19572a; 
+                                       border-radius: 4px; 
+                                       min-width: 30px;
+                                       min-height: 10px;
+                                       font-weight: bold; 
+                                       border: none;
+                                   }
+                                   QMessageBox QPushButton:hover { 
+                                       background-color: #e0f2f1; 
+                                   }
+                               """
+
 class SavingsGoalPage(QFrame):
     def __init__(self, service_goal: ServiceGoal):
         super().__init__()
@@ -59,13 +83,13 @@ class SavingsGoalPage(QFrame):
         self.goal_card.setStyleSheet("background-color: white; border: 1px solid #e0f2f1;")
         self.goal_card.setMinimumSize(600, 450)
 
-        recent_layout = QVBoxLayout(self.goal_card)
+        goals_frame_layout = QVBoxLayout(self.goal_card)
 
         self.goals_label = QLabel("Active Goals", self)
         self.goals_label.setFont(QFont('Arial', 15, weight=QFont.Weight.Bold))
         self.goals_label.setStyleSheet("color: #19572a; border: none;")
         self.goals_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        recent_layout.addWidget(self.goals_label)
+        goals_frame_layout.addWidget(self.goals_label)
 
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
@@ -78,10 +102,11 @@ class SavingsGoalPage(QFrame):
         self.goals_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         scrollArea.setWidget(self.scroll_content)
-        recent_layout.addWidget(scrollArea)
+        goals_frame_layout.addWidget(scrollArea)
 
         self.goal_layout.addWidget(self.goal_card)
         self.goal_layout.addStretch()
+        self.load_goals()
 
     def goals_box(self):
         dialog = QDialog(self)
@@ -142,16 +167,16 @@ class SavingsGoalPage(QFrame):
         dialog.exec()
 
     def goals_frame(self , goals : SavingsGoal):
-        self.item_frame_goal = QFrame()
-        self.item_frame_goal.setFixedHeight(80)
-        self.item_frame_goal.setStyleSheet("background-color: #f8fbf9; border: 1px solid #e0f2f1; border-radius: 8px;")
+        item_frame_goal = QFrame()
+        item_frame_goal.setFixedHeight(80)
+        item_frame_goal.setStyleSheet("background-color: #f8fbf9; border: 1px solid #e0f2f1; border-radius: 8px;")
 
-        item_goal_layout = QHBoxLayout(self.item_frame_goal)
+        item_goal_layout = QHBoxLayout(item_frame_goal)
         item_goal_layout.setContentsMargins(10, 0, 10, 0)
         item_goal_layout.setSpacing(8)
         item_goal_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-        icon_label = QLabel("Goals")
+        icon_label = QLabel("G")
         icon_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
         icon_label.setFixedSize(40, 40)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -165,37 +190,78 @@ class SavingsGoalPage(QFrame):
         text_layout.setContentsMargins(0, 0, 0, 0)
         text_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
+        title_label = QLabel(str(goals.title))
+        title_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
+        title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
-        pass
+        try:
+            formatted_id = f"ID: #{int(goals.id):06d}"
+        except (ValueError, TypeError):
+            formatted_id = f"ID: #{goals.id}"
+
+        id_label = QLabel(formatted_id)
+        id_label.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
+        id_label.setStyleSheet("color: #19572a; border: none; margin: 0px; padding: 0px;")
+
+        text_layout.addWidget(title_label)
+        text_layout.addWidget(id_label)
+        item_goal_layout.addWidget(text_container)
+
+        amount_date_container = QWidget()
+        amount_date_container.setStyleSheet("background-color: transparent; border: none;")
+
+        amount_date_layout = QVBoxLayout(amount_date_container)
+        amount_date_layout.setContentsMargins(0, 0, 0, 0)
+        amount_date_layout.setSpacing(1)
+        amount_date_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        formatted_amount = f"${float(goals.target_amount):,.2f}"
+        amount_label = QLabel(formatted_amount)
+        amount_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
+        amount_label.setStyleSheet(f"color: black; border: none; margin: 0px; padding: 0px;")
+        amount_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        target_date_str = str(goals.target_date) if goals.target_date else ""
+        date = QDate.fromString(target_date_str, "yyyy-MM-dd")
+        formatted_date = date.toString("MMM dd, yyyy") if date.isValid() else target_date_str
+
+        date_label = QLabel(f"Target Date: {formatted_date}")
+        date_label.setFont(QFont("Arial", 8))
+        date_label.setStyleSheet("color: gray; border: none; margin: 0px; padding: 0px;")
+        date_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        amount_date_layout.addWidget(amount_label)
+        amount_date_layout.addWidget(date_label)
+
+        item_goal_layout.addWidget(amount_date_container, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        delete_button = QPushButton("Delete")
+        delete_button.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
+        delete_button.setFixedSize(70, 26)
+        delete_button.setStyleSheet("""
+                    QPushButton {
+                        background-color: #a1270e; 
+                        color: white; 
+                        border-radius: 4px;
+                        border: none;
+                        padding: 0px;
+                    }
+                    QPushButton:hover {
+                        background-color: #801f0b;
+                    }
+                """)
+        delete_button.clicked.connect(
+            lambda checked, obj=goals, widget=item_frame_goal: self.delete(obj, widget)
+        )
+
+        item_goal_layout.addWidget(delete_button, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.goals_layout.addWidget(item_frame_goal)
+
 
     def add_goal(self, dialog) -> None:
         goal_title = self.title.text()
         target_amount = self.target_amount.text()
         target_date = self.date_box.date().toString("yyyy-MM-dd")
-
-        msg_font = QFont("Arial", 11)
-        white_bg_style = """
-                                   QMessageBox {
-                                       background-color: #5c826f;
-                                   }
-                                   QMessageBox QLabel {
-                                       color: white;
-                                       background-color: transparent;
-                                       border: none;
-                                   }
-                                   QMessageBox QPushButton { 
-                                       background-color: #ffffff; 
-                                       color: #19572a; 
-                                       border-radius: 4px; 
-                                       min-width: 30px;
-                                       min-height: 10px;
-                                       font-weight: bold; 
-                                       border: none;
-                                   }
-                                   QMessageBox QPushButton:hover { 
-                                       background-color: #e0f2f1; 
-                                   }
-                               """
 
         try:
             new_goals = SavingsGoal(title=goal_title,
@@ -233,15 +299,45 @@ class SavingsGoalPage(QFrame):
             self.title.clear()
             self.target_amount.clear()
             self.date_box.setDate(QDate.currentDate())
+            self.load_goals()
+            dialog.accept()
 
         else:
             cancel_msg = QMessageBox(
                 QMessageBox.Icon.Information, "Message", "Transaction Cancelled"
             )
-        cancel_msg.setFont(msg_font)
-        cancel_msg.setStyleSheet(white_bg_style)
-        cancel_msg.exec()
-        dialog.accept()
 
-    def delete_goals(self) -> None:
-        pass
+            cancel_msg.setFont(msg_font)
+            cancel_msg.setStyleSheet(white_bg_style)
+            cancel_msg.exec()
+
+    def delete(self, goals : SavingsGoal, item_widget) -> None:
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Question)
+        msg.setWindowTitle("Confirm Delete")
+        msg.setText(f"Are you sure you want to delete transaction #G{goals.id:05d}?")
+        msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg.setDefaultButton(QMessageBox.StandardButton.No)
+        msg.setFont(msg_font)
+        msg.setStyleSheet(white_bg_style)
+
+        if msg.exec() == QMessageBox.StandardButton.Yes:
+            self.service_goal.delete_goals(goals.id)
+            self.load_goals()
+
+            self.goals_layout.removeWidget(item_widget)
+            item_widget.deleteLater()
+
+    def load_goals(self) -> None:
+        # Clear existing widgets from the layout to avoid duplicate UI items
+        while self.goals_layout.count():
+            child = self.goals_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # Fetch goals from the database via ServiceGoal
+        goals = self.service_goal.get_goals()
+
+        # Render each goal using your existing goals_frame method
+        for goal in goals:
+            self.goals_frame(goal)

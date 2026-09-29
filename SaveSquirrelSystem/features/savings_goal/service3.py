@@ -15,15 +15,15 @@ class ServiceGoal:
     def get_goals(self) -> list[SavingsGoal]:
         return self.repository.get_all_goals()
 
-    def delete(self, trans_id: int) -> SavingsGoal:
+    def delete_goals(self, trans_id: int) -> SavingsGoal:
         delete_goals = SavingsGoal(
             id=trans_id,
-            title="",
-            target_amount=0.0,
-            target_date=""
+            title="Deleting Goal",
+            target_amount=1.0,
+            target_date="2000-01-01"
         )
         return self.repository.delete_goal(delete_goals)
 
-    def update(self, goal: SavingsGoal) -> SavingsGoal:
+    def update_goals(self, goal: SavingsGoal) -> SavingsGoal:
         goal.target_amount = SavingsService.validate_amount(goal.target_amount)
         return self.repository.update_goal(goal)
