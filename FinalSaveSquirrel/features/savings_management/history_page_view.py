@@ -58,7 +58,7 @@ class HistoryPage(QFrame):
         history_layout.addWidget(self.history_label)
 
         self.search_bar = QLineEdit(self)
-        self.search_bar.setPlaceholderText("🔍 Search history by UID or category...")
+        self.search_bar.setPlaceholderText("Search history by UID or category...")
         self.search_bar.setFont(QFont("Arial", 10))
         self.search_bar.setStyleSheet("background-color: white; color:black; border: 1px solid #e0f2f1;")
         self.search_bar.textChanged.connect(self.filter_history)
@@ -309,7 +309,6 @@ class HistoryPage(QFrame):
         edit_page.submit_transaction.clicked.disconnect()
 
         def save_changes():
-
             raw_amount = edit_page.edit_amount.text()
 
             try:
@@ -343,8 +342,7 @@ class HistoryPage(QFrame):
             confirm_msg.setStyleSheet(white_bg_style)
 
             if confirm_msg.exec() != QMessageBox.StandardButton.Yes:
-                return
-
+                return #way buhaton
             try:
                 self.service.update(updated_savings)
             except Exception as e:
@@ -372,7 +370,7 @@ class HistoryPage(QFrame):
         dialog_layout.addWidget(edit_page)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.load_history()
+            self.load_history() #para magrefresh gihapon siya tong mga itemframe
 
     @staticmethod
     def clear_layout(layout):
