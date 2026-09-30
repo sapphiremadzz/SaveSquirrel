@@ -37,7 +37,7 @@ class DashboardPage(QFrame):
         self.dashboard2_label.setStyleSheet("color: #19572a;")
         self.dashboard2_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.dashboard3_label = QLabel("Here is an overview", self)
+        self.dashboard3_label = QLabel("Here is an overview of your savings", self)
         self.dashboard3_label.setFont(QFont('Arial', 11))
         self.dashboard3_label.setStyleSheet("color: gray; padding: 10px;")
         self.dashboard3_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -202,15 +202,7 @@ class DashboardPage(QFrame):
             return
 
         for item in recent_transactions:
-            savings_obj = Savings(
-                id=item["id"],
-                trans_type=item.get("trans_type") or ("Expense" if item.get("is_expense") else "Income"),
-                category=item["category"],
-                amount=item["amount"],
-                description=item.get("description", ""),
-                date=item["date"]
-            )
-            self.add_recentTransaction(savings_obj, show_buttons=False)
+            self.add_recentTransaction(item, show_buttons=False)
 
     def refresh_recent_transactions(self):
         summary = self.dashboard_service.fetch_dashboard_summary()

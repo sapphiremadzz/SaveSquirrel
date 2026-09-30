@@ -16,6 +16,26 @@ from features.savings_goal.savings_goal_view import SavingsGoalPage
 from features.savings_goal.repository3 import GoalRepository
 from features.savings_goal.service3 import ServiceGoal
 
+BUTTON_STYLE = """
+    QPushButton {
+        color: #19572a;
+        background-color: transparent;
+        font-size: 14px;
+        padding: 12px 16px;
+        text-align: center;
+        border: none;
+        border-radius: 8px;
+        margin: 2px 10px;
+    }
+    QPushButton:hover {
+        background-color: #d8ebd9;
+        color: #19572a;
+    }
+    QPushButton:pressed {
+        background-color: #c5e1c6;
+    }
+"""
+
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -57,20 +77,20 @@ class MainWindow(QMainWindow):
 
         # these area the buttons of the sideframe
 
-        self.add_button = QPushButton("+ Add Transaction", self)
-        self.add_button.setStyleSheet("color: #19572a; font-size: 15px; padding: 10px;")
+        self.dashboard_button = QPushButton("Dashboard", self)
+        self.dashboard_button.setStyleSheet(BUTTON_STYLE)
+        self.dashboard_button.clicked.connect(self.add_dashboardClicked)
+
+        self.add_button = QPushButton("Add Transaction", self)
+        self.add_button.setStyleSheet(BUTTON_STYLE)
         self.add_button.clicked.connect(self.add_buttonClicked)
 
         self.history_button = QPushButton("View History", self)
-        self.history_button.setStyleSheet("color: #19572a; font-size: 15px; padding: 10px;")
+        self.history_button.setStyleSheet(BUTTON_STYLE)
         self.history_button.clicked.connect(self.add_historyClicked)
 
-        self.dashboard_button = QPushButton("Dashboard", self)
-        self.dashboard_button.setStyleSheet("color: #19572a; font-size: 15px; padding: 10px;")
-        self.dashboard_button.clicked.connect(self.add_dashboardClicked)
-
         self.goals_button = QPushButton("Savings Goals", self)
-        self.goals_button.setStyleSheet("color: #19572a; font-size: 15px; padding: 10px;")
+        self.goals_button.setStyleSheet(BUTTON_STYLE)
         self.goals_button.clicked.connect(self.add_goalsClicked)
 
         self.side_layout.addWidget(self.label)

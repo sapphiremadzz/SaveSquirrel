@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-
 from features.savings_management.service import SavingsService
-
 
 @dataclass
 class SavingsGoal:

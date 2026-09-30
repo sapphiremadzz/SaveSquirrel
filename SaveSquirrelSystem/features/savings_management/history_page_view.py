@@ -88,7 +88,7 @@ class HistoryPage(QFrame):
 
     def add_historyCard(self, transaction: Savings, show_buttons=False):
 
-        # this is fot the recent transaction card
+        # this is for showing the save transactions card
         # this frame serves as the cards or box for viewing every records
         self.item_frame = QFrame()
         self.item_frame.setFixedHeight(80)
@@ -141,8 +141,8 @@ class HistoryPage(QFrame):
                 only the category and UID will be displayed"""
         if transaction.description:
             desc_text = str(transaction.description)
-            if len(desc_text) > 50:
-                desc_text = desc_text[:50] + "..."
+            if len(desc_text) > 150: #just set the length of characters into 150
+                desc_text = desc_text[:150] + "..."
             desc_label = QLabel(f"Note: {desc_text}")
             desc_label.setFont(QFont("Arial", 8, italic=True))
             desc_label.setStyleSheet("color: #4a5568; border: none; margin: 0px; padding: 0px;")
@@ -286,7 +286,6 @@ class HistoryPage(QFrame):
         edit_page.edit_amount.setFont(QFont('Arial', 10))
         edit_page.edit_description.setFont(QFont('Arial', 10))
 
-
         type_idx = edit_page.comboType.findText(transaction.trans_type)
         if type_idx != -1:
             edit_page.comboType.setCurrentIndex(type_idx)
@@ -398,9 +397,9 @@ class HistoryPage(QFrame):
         # Apply search condition against category and UID, set formatted ID so that when users type 0000, magshow up gihapon siya
         filtered_items = [
             item for item in self.all_transactions_cache
-            if query in str(item.get("category", "")).lower()
-            or query in str(item.get("id", "")).lower()
-            or query in f"#{item.get('id', 0):06d}".lower()
+            if query in str(item.category).lower()
+            or query in str(item.id).lower()
+            or query in f"#{item.id:06d}".lower()
         ]
 
         #if users search something on the search bar but hindi siya nakasave sa dataabse or wala sa itemframe
@@ -417,12 +416,4 @@ class HistoryPage(QFrame):
             return
 
         for item in filtered_items:
-            savings_obj = Savings(
-                id=item["id"],
-                trans_type=item.get("trans_type") or ("Expense" if item.get("is_expense") else "Income"),
-                category=item["category"],
-                amount=item["amount"],
-                description=item.get("description", ""),
-                date=item["date"]
-            )
-            self.add_history(savings_obj)
+            self.add_history(item)

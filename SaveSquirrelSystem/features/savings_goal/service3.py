@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from features.savings_goal.repository3 import GoalRepository
 from features.savings_goal.model3 import SavingsGoal
 from features.savings_management.service import SavingsService  # Import validation logic[cite: 6]
@@ -5,8 +6,6 @@ from features.savings_management.service import SavingsService  # Import validat
 class ServiceGoal:
     def __init__(self, repository: GoalRepository):
         self.repository = repository
-
-
 
     def add_goal(self, goal: SavingsGoal) -> SavingsGoal:
         goal.target_amount = SavingsService.validate_amount(goal.target_amount)
@@ -27,3 +26,5 @@ class ServiceGoal:
     def update_goals(self, goal: SavingsGoal) -> SavingsGoal:
         goal.target_amount = SavingsService.validate_amount(goal.target_amount)
         return self.repository.update_goal(goal)
+
+

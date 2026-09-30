@@ -62,6 +62,7 @@ class SavingsGoalPage(QFrame):
 
         self.goal_layout = QVBoxLayout()
         self.setLayout(self.goal_layout)
+        self.goal_layout.addSpacing(20)
 
         header_layout = QHBoxLayout()
 
@@ -76,7 +77,6 @@ class SavingsGoalPage(QFrame):
         self.goalButton.setFixedWidth(120)
         self.goalButton.clicked.connect(self.goals_box)
         header_layout.addWidget(self.goalButton, alignment=Qt.AlignmentFlag.AlignTop)
-
         self.goal_layout.addLayout(header_layout)
 
         self.goal_card = QFrame()
@@ -106,7 +106,7 @@ class SavingsGoalPage(QFrame):
 
         self.goal_layout.addWidget(self.goal_card)
         self.goal_layout.addStretch()
-        self.load_goals()
+        self.clear_goals()
 
     def goals_box(self):
         dialog = QDialog(self)
@@ -180,7 +180,7 @@ class SavingsGoalPage(QFrame):
         icon_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
         icon_label.setFixedSize(40, 40)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon_label.setStyleSheet(f"background-color: green; color: white; border-radius: 0px; border: none;")
+        icon_label.setStyleSheet(f"background-color: #a0dec4; color: green; border-radius: 0px; border: none;")
         item_goal_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
 
         text_container = QWidget()
@@ -195,7 +195,7 @@ class SavingsGoalPage(QFrame):
         title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
         try:
-            formatted_id = f"ID: #{int(goals.id):06d}"
+            formatted_id = f"ID: #T{int(goals.id):05d}"
         except (ValueError, TypeError):
             formatted_id = f"ID: #{goals.id}"
 
@@ -215,7 +215,7 @@ class SavingsGoalPage(QFrame):
         amount_date_layout.setSpacing(1)
         amount_date_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-        formatted_amount = f"${float(goals.target_amount):,.2f}"
+        formatted_amount = f"₱{float(goals.target_amount):,.2f}"
         amount_label = QLabel(formatted_amount)
         amount_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
         amount_label.setStyleSheet(f"color: black; border: none; margin: 0px; padding: 0px;")
@@ -257,16 +257,16 @@ class SavingsGoalPage(QFrame):
         item_goal_layout.addWidget(delete_button, 0, Qt.AlignmentFlag.AlignVCenter)
         self.goals_layout.addWidget(item_frame_goal)
 
-
     def add_goal(self, dialog) -> None:
         goal_title = self.title.text()
         target_amount = self.target_amount.text()
         target_date = self.date_box.date().toString("yyyy-MM-dd")
 
         try:
-            new_goals = SavingsGoal(title=goal_title,
-                               target_amount=target_amount,
-                               target_date=target_date)
+            new_goals = SavingsGoal(
+                title=goal_title,
+                target_amount=target_amount,
+                target_date=target_date)
         except ValueError as e:
             msg = QMessageBox(QMessageBox.Icon.Warning, "Invalid Input", str(e))
             msg.setFont(msg_font)
@@ -278,7 +278,7 @@ class SavingsGoalPage(QFrame):
         msg = QMessageBox(
             QMessageBox.Icon.Question,
             "Confirm",
-            "Are you sure you want to submit this transaction?",
+            "Are you sure you want to save this goal?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
 
         )
@@ -299,12 +299,12 @@ class SavingsGoalPage(QFrame):
             self.title.clear()
             self.target_amount.clear()
             self.date_box.setDate(QDate.currentDate())
-            self.load_goals()
+            self.clear_goals()
             dialog.accept()
 
         else:
             cancel_msg = QMessageBox(
-                QMessageBox.Icon.Information, "Message", "Transaction Cancelled"
+                QMessageBox.Icon.Information, "Message", "Goal Cancelled"
             )
 
             cancel_msg.setFont(msg_font)
@@ -315,7 +315,7 @@ class SavingsGoalPage(QFrame):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Icon.Question)
         msg.setWindowTitle("Confirm Delete")
-        msg.setText(f"Are you sure you want to delete transaction #G{goals.id:05d}?")
+        msg.setText(f"Are you sure you want to delete this goal? #G{goals.id:05d}?")
         msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         msg.setDefaultButton(QMessageBox.StandardButton.No)
         msg.setFont(msg_font)
@@ -323,21 +323,20 @@ class SavingsGoalPage(QFrame):
 
         if msg.exec() == QMessageBox.StandardButton.Yes:
             self.service_goal.delete_goals(goals.id)
-            self.load_goals()
+            self.clear_goals()
 
             self.goals_layout.removeWidget(item_widget)
             item_widget.deleteLater()
 
-    def load_goals(self) -> None:
+    def clear_goals(self) -> None:
         # Clear existing widgets from the layout to avoid duplicate UI items
         while self.goals_layout.count():
-            child = self.goals_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+            item = self.goals_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
 
         # Fetch goals from the database via ServiceGoal
         goals = self.service_goal.get_goals()
 
-        # Render each goal using your existing goals_frame method
         for goal in goals:
             self.goals_frame(goal)
