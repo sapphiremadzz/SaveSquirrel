@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         self.dashboard_service = DashboardService(self.repository)
 
         self.goal_repository = GoalRepository(self.db)
-        self.goal_service = ServiceGoal(self.goal_repository)
+        self.goal_service = ServiceGoal(self.goal_repository, self.dashboard_service)
 
         self.initUI()
 
