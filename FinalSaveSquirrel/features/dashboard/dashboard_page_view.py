@@ -37,7 +37,7 @@ class DashboardPage(QFrame):
         self.dashboard2_label.setStyleSheet("color: #19572a;")
         self.dashboard2_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        self.dashboard3_label = QLabel("Here is an overview", self)
+        self.dashboard3_label = QLabel("Here is an overview of your savings", self)
         self.dashboard3_label.setFont(QFont('Arial', 11))
         self.dashboard3_label.setStyleSheet("color: gray; padding: 10px;")
         self.dashboard3_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -161,8 +161,9 @@ class DashboardPage(QFrame):
         dashboard_layout.addStretch()
 
     def add_recentTransaction(self , transaction: Savings, show_buttons=False):
-
         history_edit = HistoryPage(service=self.savings_service)
+        #just reused the code from the History_page_view
+        #giset ko lang ang show button into false so dli makita tong update ug delete
         item_frame = history_edit.add_historyCard(
             transaction=transaction,
             show_buttons=show_buttons
@@ -182,6 +183,8 @@ class DashboardPage(QFrame):
                 oldest_item.widget().deleteLater()
 
     def clear_recent_transactions(self):
+        #para dli magbalikbalik or magduplicate ang mga item frames
+        #gireuse lang naku siya na code
         HistoryPage.clear_layout(self.recentTransactions_layout)
 
     def load_recent_transactions(self):
@@ -202,20 +205,13 @@ class DashboardPage(QFrame):
             return
 
         for item in recent_transactions:
-            savings_obj = Savings(
-                id=item["id"],
-                trans_type=item.get("trans_type") or ("Expense" if item.get("is_expense") else "Income"),
-                category=item["category"],
-                amount=item["amount"],
-                description=item.get("description", ""),
-                date=item["date"]
-            )
-            self.add_recentTransaction(savings_obj, show_buttons=False)
+            self.add_recentTransaction(item, show_buttons=False)
 
     def refresh_recent_transactions(self):
         summary = self.dashboard_service.fetch_dashboard_summary()
         self.update_totals(summary.income, summary.expense, summary.savings)
         self.load_recent_transactions()
+        #for refreshing
 
     def update_totals(self, income, expense, savings):
         """to update displayed totals in the dashboard dynamically whenever a new item is submitted."""

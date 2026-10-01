@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt , QDate
 from features.savings_goal.service3 import ServiceGoal
 from features.savings_goal.model3 import SavingsGoal
 from features.savings_management.service import SavingsService
+from features.savings_management.history_page_view import HistoryPage
 
 msg_font = QFont("Arial", 11)
 white_bg_style = """
@@ -195,7 +196,7 @@ class SavingsGoalPage(QFrame):
         title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
         try:
-            formatted_id = f"ID: #T{int(goals.id):05d}"
+            formatted_id = f"ID: #G{int(goals.id):05d}"
         except (ValueError, TypeError):
             formatted_id = f"ID: #{goals.id}"
 
@@ -233,28 +234,59 @@ class SavingsGoalPage(QFrame):
         amount_date_layout.addWidget(amount_label)
         amount_date_layout.addWidget(date_label)
 
-        item_goal_layout.addWidget(amount_date_container, 0, Qt.AlignmentFlag.AlignVCenter)
+        item_goal_layout.addWidget(amount_date_container, 1, Qt.AlignmentFlag.AlignVCenter)
+
+        btn_container = QWidget()
+        btn_container.setStyleSheet("background-color: transparent; border: none;")
+        btn_layout = QHBoxLayout(btn_container)
+        btn_layout.setContentsMargins(4, 0, 0, 0)
+        btn_layout.setSpacing(4)
+        btn_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        view_button = QPushButton("View")
+        view_button.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
+        view_button.setFixedSize(70, 26)
+        view_button.setStyleSheet("""
+                                                QPushButton {
+                                                    background-color: #0ea131; 
+                                                    color: white; 
+                                                    border-radius: 4px;
+                                                    border: none;
+                                                    padding: 0px;
+                                                }
+                                                QPushButton:hover {
+                                                    background-color: #0b8027;
+                                                }
+                                            """)
+
+        view_button.clicked.connect(
+            lambda checked, obj=goals: self.view(obj)
+        )
 
         delete_button = QPushButton("Delete")
         delete_button.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
         delete_button.setFixedSize(70, 26)
         delete_button.setStyleSheet("""
-                    QPushButton {
-                        background-color: #a1270e; 
-                        color: white; 
-                        border-radius: 4px;
-                        border: none;
-                        padding: 0px;
-                    }
-                    QPushButton:hover {
-                        background-color: #801f0b;
-                    }
-                """)
+                                                QPushButton {
+                                                    background-color: #a1270e; 
+                                                    color: white; 
+                                                    border-radius: 4px;
+                                                    border: none;
+                                                    padding: 0px;
+                                                }
+                                                QPushButton:hover {
+                                                    background-color: #801f0b;
+                                                }
+                                            """)
         delete_button.clicked.connect(
             lambda checked, obj=goals, widget=item_frame_goal: self.delete(obj, widget)
         )
 
-        item_goal_layout.addWidget(delete_button, 0, Qt.AlignmentFlag.AlignVCenter)
+        btn_layout.addWidget(view_button)
+        btn_layout.addWidget(delete_button)
+
+
+        item_goal_layout.addWidget(btn_container, 0, Qt.AlignmentFlag.AlignVCenter)
         self.goals_layout.addWidget(item_frame_goal)
 
     def add_goal(self, dialog) -> None:
@@ -330,15 +362,76 @@ class SavingsGoalPage(QFrame):
 
     def clear_goals(self) -> None:
         # Clear existing widgets from the layout to avoid duplicate UI items
-        while self.goals_layout.count():
-            item = self.goals_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        HistoryPage.clear_layout(self.goals_layout)
 
         # Fetch goals from the database via ServiceGoal
         goals = self.service_goal.get_goals()
 
-        # Render each goal using your existing goals_frame method
         for goal in goals:
             self.goals_frame(goal)
 
+    def view(self , goal : SavingsGoal) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Savings Goal - {goal.title}")
+        dialog.setStyleSheet("background-color: #E8F5E9")
+        dialog.setFixedSize(400, 380)
+
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(4)
+        layout.setContentsMargins(20, 20, 20, 20)
+
+        formatted_id = f"#T{int(goal.id):05d}"
+
+        self.label = QLabel(f"{goal.title}\n({formatted_id})")
+        self.label.setFont(QFont('Arial', 14, weight=QFont.Weight.Bold))
+        self.label.setStyleSheet("color: #19572a;")
+        self.label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(self.label)
+
+        layout.addSpacing(20)
+        form_layout = QFormLayout()
+        form_layout.setSpacing(10)
+
+
+        target_value = QLabel(f"₱{float(goal.target_amount):,.2f}")
+        target_value.setFont(QFont("Arial", 11, weight=QFont.Weight.Bold))
+        target_value.setStyleSheet("color: #2c3e50;")
+
+        date_value = QLabel(goal.target_date)
+        date_value.setFont(QFont("Arial", 11))
+        date_value.setStyleSheet("color: #2c3e50;")
+
+        remaining_days = self.service_goal.get_remaining_days_text(goal.target_date)
+        days_remain = QLabel(remaining_days)
+        days_remain.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
+        days_remain.setStyleSheet("color: #19572a;")
+
+        needed_amount = self.service_goal.needed_amount(goal)
+        needed_val = QLabel(f"₱{needed_amount:,.2f}")
+        needed_val.setFont(QFont("Arial", 11, weight=QFont.Weight.Bold))
+        needed_val.setStyleSheet("color: #a1270e;")
+
+        form_layout.addRow(
+            QLabel("Target Amount:", font=QFont("Arial", 10) , styleSheet="color: black;"), target_value
+        )
+        form_layout.addRow(
+            QLabel("Target Date:", font=QFont("Arial", 10), styleSheet="color: black;"), date_value
+        )
+        form_layout.addRow(
+            QLabel("Remaining Days:", font=QFont("Arial", 10) , styleSheet="color: black;"), days_remain
+        )
+        form_layout.addRow(
+            QLabel("Needed Amount:", font=QFont("Arial", 10) , styleSheet="color: black;"), needed_val
+        )
+
+        layout.addLayout(form_layout)
+        layout.addStretch()
+
+        close_btn = QPushButton("Close")
+        close_btn.setFixedHeight(35)
+        close_btn.setStyleSheet(
+            "background-color: #22573a; color: white; font-weight: bold; border-radius: 5px;"
+        )
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        dialog.exec()

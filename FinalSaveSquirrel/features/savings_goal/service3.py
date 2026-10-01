@@ -1,11 +1,13 @@
 from datetime import datetime, date
 from features.savings_goal.repository3 import GoalRepository
+from features.dashboard.service2 import DashboardService
 from features.savings_goal.model3 import SavingsGoal
 from features.savings_management.service import SavingsService  # Import validation logic[cite: 6]
 
 class ServiceGoal:
-    def __init__(self, repository: GoalRepository):
+    def __init__(self, repository: GoalRepository, dashboard_service: DashboardService):
         self.repository = repository
+        self.dashboard_service = dashboard_service
 
     def add_goal(self, goal: SavingsGoal) -> SavingsGoal:
         goal.target_amount = SavingsService.validate_amount(goal.target_amount)
@@ -27,5 +29,34 @@ class ServiceGoal:
         goal.target_amount = SavingsService.validate_amount(goal.target_amount)
         return self.repository.update_goal(goal)
 
+    def get_remaining_days_text(self, target_date_input: str | date) -> str:
+        today = date.today()
 
+        if isinstance(target_date_input, str):
+            if not target_date_input.strip():
+                return "No target date set"
+            target_dt = datetime.strptime(
+                target_date_input, "%Y-%m-%d"
+            ).date()
+        else:
+            target_dt = target_date_input
 
+        remaining_days = (target_dt - today).days
+
+        if remaining_days > 0:
+            return f"You have {remaining_days} days remaining"
+        elif remaining_days == 0:
+            return "Target date is today"
+        else:
+            return f"Overdue by {abs(remaining_days)} days"
+
+    def get_current_savings(self)-> float:
+        current_savings = self.dashboard_service.fetch_dashboard_summary()
+        return current_savings.savings
+
+    def needed_amount(self, goal: SavingsGoal) -> float:
+        target_amount = float(goal.target_amount)
+        current_savings = self.get_current_savings()
+
+        needed_amount = target_amount - current_savings
+        return max(0.00,needed_amount)

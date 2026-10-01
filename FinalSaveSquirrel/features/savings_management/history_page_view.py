@@ -87,9 +87,9 @@ class HistoryPage(QFrame):
         history_layout.addStretch()
 
     def add_historyCard(self, transaction: Savings, show_buttons=False):
-
-        # this is fot the recent transaction card
+        # this is for showing the save transactions card
         # this frame serves as the cards or box for viewing every records
+        # past and save transactions can be seen in this frame
         self.item_frame = QFrame()
         self.item_frame.setFixedHeight(80)
         self.item_frame.setStyleSheet("background-color: #f8fbf9; border: 1px solid #e0f2f1; border-radius: 8px;")
@@ -114,6 +114,7 @@ class HistoryPage(QFrame):
         item_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
 
         # this part is for the Category and UID
+        #another container for layouts ng saganun di magconflicts ang mga layouts
         text_container = QWidget()
         text_container.setStyleSheet("background-color: transparent; border: none;")
         text_layout = QVBoxLayout(text_container)
@@ -125,10 +126,8 @@ class HistoryPage(QFrame):
         title_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
         title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
-        try:
-            formatted_id = f"ID: #{int(transaction.id):06d}"
-        except (ValueError, TypeError):
-            formatted_id = f"ID: #{transaction.id}"
+        #parang ganito siya #T00001
+        formatted_id = f"ID: #T{int(transaction.id):05d}"
 
         id_label = QLabel(formatted_id)
         id_label.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
@@ -141,8 +140,8 @@ class HistoryPage(QFrame):
                 only the category and UID will be displayed"""
         if transaction.description:
             desc_text = str(transaction.description)
-            if len(desc_text) > 50:
-                desc_text = desc_text[:50] + "..."
+            if len(desc_text) > 150: #just set the length of characters into 150
+                desc_text = desc_text[:150] + "..."
             desc_label = QLabel(f"Note: {desc_text}")
             desc_label.setFont(QFont("Arial", 8, italic=True))
             desc_label.setStyleSheet("color: #4a5568; border: none; margin: 0px; padding: 0px;")
@@ -162,11 +161,7 @@ class HistoryPage(QFrame):
         prefix = "-" if is_expense else "+"
         amount_color = "#630903" if is_expense else "#03632e"
 
-        try:
-            amt_val = float(transaction.amount) if transaction.amount is not None else 0.0
-            formatted_amount = f"{prefix}{amt_val:,.2f}"
-        except (ValueError, TypeError):
-            formatted_amount = f"{prefix}{transaction.amount}"
+        formatted_amount = f"{prefix}{transaction.amount}"
 
         amount_label = QLabel(formatted_amount)
         amount_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
@@ -257,9 +252,9 @@ class HistoryPage(QFrame):
         msg.setStyleSheet(white_bg_style)
 
         if msg.exec() == QMessageBox.StandardButton.Yes:
-            self.service.delete(transaction.id)
+            self.service.delete(transaction.id) #madelete ni siya from database
 
-            self.historyTransaction_layout.removeWidget(item_widget)
+            self.historyTransaction_layout.removeWidget(item_widget) #pupose ani is to delete a frame
             item_widget.deleteLater()
 
             if self.historyTransaction_layout.count() == 0:
@@ -272,7 +267,7 @@ class HistoryPage(QFrame):
         dialog.setStyleSheet("background-color: #f5fcf9; border-radius: 8px;")
         dialog_layout = QVBoxLayout(dialog)
 
-        edit_page = TransactionPage(service=self.service)
+        edit_page = TransactionPage(service=self.service) #just reused the code UI from transactionPage ginawa ko lang qdialog
 
         edit_page.setStyleSheet("background-color: #f5fcf9; border-radius: 8px;")
         edit_page.transaction_label.setText(f"Edit Transaction #{transaction.id:06d}")
@@ -285,7 +280,6 @@ class HistoryPage(QFrame):
         edit_page.comboCategory.setFont(QFont('Arial', 10))
         edit_page.edit_amount.setFont(QFont('Arial', 10))
         edit_page.edit_description.setFont(QFont('Arial', 10))
-
 
         type_idx = edit_page.comboType.findText(transaction.trans_type)
         if type_idx != -1:
@@ -302,6 +296,7 @@ class HistoryPage(QFrame):
         edit_page.edit_description.setText(transaction.description if transaction.description else "")
 
         qdate = QDate.fromString(str(transaction.date), "yyyy-MM-dd")
+
         if qdate.isValid():
             edit_page.date_box.setDate(qdate)
 
@@ -342,7 +337,8 @@ class HistoryPage(QFrame):
             confirm_msg.setStyleSheet(white_bg_style)
 
             if confirm_msg.exec() != QMessageBox.StandardButton.Yes:
-                return #way buhaton
+                return
+
             try:
                 self.service.update(updated_savings)
             except Exception as e:
@@ -370,11 +366,12 @@ class HistoryPage(QFrame):
         dialog_layout.addWidget(edit_page)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.load_history() #para magrefresh gihapon siya tong mga itemframe
+            self.load_history()
 
     @staticmethod
     def clear_layout(layout):
-        """Clears all item widgets from any given layout."""
+        """Clears all item widgets from any given layout. This also make sure to avoid duplicate item frames"""
+        #pag wala ni magduplicate ang mga UI frame
         while layout.count() > 0:
             item = layout.takeAt(0)
             if item.widget():
@@ -384,7 +381,7 @@ class HistoryPage(QFrame):
         HistoryPage.clear_layout(self.historyTransaction_layout)
 
     def load_history(self):
-        """Fetches items from database helper and updates cached transactions."""
+        # feed or kunin ang mga data galing sa service
         self.all_transactions_cache = self.service.fetch_formatted_history(limit=None) or []
         self.filter_history()
 
@@ -396,9 +393,9 @@ class HistoryPage(QFrame):
         # Apply search condition against category and UID, set formatted ID so that when users type 0000, magshow up gihapon siya
         filtered_items = [
             item for item in self.all_transactions_cache
-            if query in str(item.get("category", "")).lower()
-            or query in str(item.get("id", "")).lower()
-            or query in f"#{item.get('id', 0):06d}".lower()
+            if query in str(item.category).lower()
+            or query in str(item.id).lower()
+            or query in f"#{item.id:06d}".lower()
         ]
 
         #if users search something on the search bar but hindi siya nakasave sa dataabse or wala sa itemframe
@@ -415,12 +412,4 @@ class HistoryPage(QFrame):
             return
 
         for item in filtered_items:
-            savings_obj = Savings(
-                id=item["id"],
-                trans_type=item.get("trans_type") or ("Expense" if item.get("is_expense") else "Income"),
-                category=item["category"],
-                amount=item["amount"],
-                description=item.get("description", ""),
-                date=item["date"]
-            )
-            self.add_history(savings_obj)
+            self.add_history(item)

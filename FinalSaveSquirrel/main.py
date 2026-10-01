@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         self.dashboard_service = DashboardService(self.repository)
 
         self.goal_repository = GoalRepository(self.db)
-        self.goal_service = ServiceGoal(self.goal_repository)
+        self.goal_service = ServiceGoal(self.goal_repository, self.dashboard_service)
 
         self.initUI()
 
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.add_button.setStyleSheet(BUTTON_STYLE)
         self.add_button.clicked.connect(self.add_buttonClicked)
 
-        self.history_button = QPushButton("View History", self)
+        self.history_button = QPushButton("View / Edit History", self)
         self.history_button.setStyleSheet(BUTTON_STYLE)
         self.history_button.clicked.connect(self.add_historyClicked)
 

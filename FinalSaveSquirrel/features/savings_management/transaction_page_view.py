@@ -123,7 +123,8 @@ class TransactionPage(QFrame):
        self.description_label.setStyleSheet("color: #19572a;")
 
        self.edit_description = QLineEdit()
-       self.edit_description.setPlaceholderText("(optional)")
+       self.edit_description.setPlaceholderText("(optional, maximum of 150 characters)")
+       self.edit_description.setMaxLength(150)
        self.edit_description.setStyleSheet("color: #19572a; font-size: 12px; background-color: white;")
 
        description_label_layout = QHBoxLayout()
@@ -176,7 +177,7 @@ class TransactionPage(QFrame):
        """sets the selected transaction type as the root index of the category ComboBox,
               allowing it to display only the child categories associated with that transaction type.
               so for example if users chooses expenses,
-              then its categories [transportation, food, others] will display"""
+              then its categories [transportation, food, bills, etc...] will display"""
        self.comboCategory.setRootModelIndex(
            indx)
        self.comboCategory.setCurrentIndex(0)
@@ -184,9 +185,6 @@ class TransactionPage(QFrame):
    # this part is on the transaction page where if the users click the submit button,
    # there is a messagebox that will pop up,
    def add_transactionClicked(self):
-       self.validation()
-
-   def validation(self):
        trans_type = self.comboType.currentText()
        category = self.comboCategory.currentText()
        amount_text = self.edit_amount.text()
@@ -271,11 +269,3 @@ class TransactionPage(QFrame):
            cancel_msg.setFont(msg_font)
            cancel_msg.setStyleSheet(white_bg_style)
            cancel_msg.exec()
-
-
-
-
-
-
-
-

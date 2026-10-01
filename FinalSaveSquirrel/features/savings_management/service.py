@@ -37,20 +37,22 @@ class SavingsService:
         )
         return self.repository.delete_transaction(delete_savings)
 
-    def fetch_formatted_history(self, limit: int | None = None) -> list[dict]:
+    def fetch_formatted_history(self, limit: int | None = None) -> list[Savings]:
         all_transactions = self.get_transaction()
         history_items = all_transactions[:limit] if limit else all_transactions
 
         history_data = []
         for item in history_items:
-            history_data.append({
-                "id": item.id,
-                "category": item.category or "General",
-                "description": (item.description or "").strip(),
-                "date": item.date or "",
-                "amount": item.amount,
-                "is_expense": (item.trans_type == "Expense")
-            })
+            savings_obj = Savings(
+                id=item.id,
+                category=item.category ,
+                description=(item.description or "").strip(),
+                date=item.date or "",
+                amount=item.amount,
+                trans_type=item.trans_type,
+            )
+            history_data.append(savings_obj)
+
         return history_data
 
     def update(self, savings: Savings) -> Savings:
