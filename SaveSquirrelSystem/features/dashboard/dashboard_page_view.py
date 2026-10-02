@@ -161,8 +161,9 @@ class DashboardPage(QFrame):
         dashboard_layout.addStretch()
 
     def add_recentTransaction(self , transaction: Savings, show_buttons=False):
-
         history_edit = HistoryPage(service=self.savings_service)
+        #just reused the code from the History_page_view
+        #giset ko lang ang show button into false so dli makita tong update ug delete
         item_frame = history_edit.add_historyCard(
             transaction=transaction,
             show_buttons=show_buttons
@@ -182,6 +183,8 @@ class DashboardPage(QFrame):
                 oldest_item.widget().deleteLater()
 
     def clear_recent_transactions(self):
+        #para dli magbalikbalik or magduplicate ang mga item frames
+        #gireuse lang naku siya na code
         HistoryPage.clear_layout(self.recentTransactions_layout)
 
     def load_recent_transactions(self):
@@ -206,8 +209,9 @@ class DashboardPage(QFrame):
 
     def refresh_recent_transactions(self):
         summary = self.dashboard_service.fetch_dashboard_summary()
-        self.update_totals(summary.income, summary.expense, summary.savings)
+        self.update_totals(summary.get_income(), summary.get_expense(), summary.get_savings())
         self.load_recent_transactions()
+        #for refreshing
 
     def update_totals(self, income, expense, savings):
         """to update displayed totals in the dashboard dynamically whenever a new item is submitted."""

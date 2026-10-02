@@ -1,12 +1,15 @@
-from dataclasses import dataclass
-
-@dataclass
 class SavingsDashboard:
-    income: float
-    expense: float
-    savings: float
+    def __init__(self, income: float, expense: float, savings: float):
+        self.__income = float(income)
+        self.__expense = float(expense)
+        self.__savings = float(savings)
 
-    def __post_init__(self) -> None:
-        self.income = float(self.income)
-        self.expense = float(self.expense)
-        self.savings = float(self.savings)
+    def get_income(self) -> float:
+        return self.__income
+
+    def get_expense(self) -> float:
+        return self.__expense
+
+    def get_savings(self) -> float:
+        return self.__savings
+

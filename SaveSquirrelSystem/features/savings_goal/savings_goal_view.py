@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt , QDate
 from features.savings_goal.service3 import ServiceGoal
 from features.savings_goal.model3 import SavingsGoal
 from features.savings_management.service import SavingsService
+from features.savings_management.history_page_view import HistoryPage
 
 msg_font = QFont("Arial", 11)
 white_bg_style = """
@@ -195,7 +196,7 @@ class SavingsGoalPage(QFrame):
         title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
         try:
-            formatted_id = f"ID: #T{int(goals.id):05d}"
+            formatted_id = f"ID: #G{int(goals.id):05d}"
         except (ValueError, TypeError):
             formatted_id = f"ID: #{goals.id}"
 
@@ -361,10 +362,7 @@ class SavingsGoalPage(QFrame):
 
     def clear_goals(self) -> None:
         # Clear existing widgets from the layout to avoid duplicate UI items
-        while self.goals_layout.count():
-            item = self.goals_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        HistoryPage.clear_layout(self.goals_layout)
 
         # Fetch goals from the database via ServiceGoal
         goals = self.service_goal.get_goals()
@@ -394,11 +392,11 @@ class SavingsGoalPage(QFrame):
         form_layout = QFormLayout()
         form_layout.setSpacing(10)
 
+
         target_value = QLabel(f"₱{float(goal.target_amount):,.2f}")
         target_value.setFont(QFont("Arial", 11, weight=QFont.Weight.Bold))
         target_value.setStyleSheet("color: #2c3e50;")
 
-        # Target Date
         date_value = QLabel(goal.target_date)
         date_value.setFont(QFont("Arial", 11))
         date_value.setStyleSheet("color: #2c3e50;")
@@ -414,22 +412,19 @@ class SavingsGoalPage(QFrame):
         needed_val.setStyleSheet("color: #a1270e;")
 
         form_layout.addRow(
-            QLabel("Target Amount:", font=QFont("Arial", 10)), target_value
+            QLabel("Target Amount:", font=QFont("Arial", 10) , styleSheet="color: black;"), target_value
         )
         form_layout.addRow(
-            QLabel("Target Date:", font=QFont("Arial", 10)), date_value
+            QLabel("Target Date:", font=QFont("Arial", 10), styleSheet="color: black;"), date_value
         )
         form_layout.addRow(
-            QLabel("Remaining Days:", font=QFont("Arial", 10)), days_remain
+            QLabel("Remaining Days:", font=QFont("Arial", 10) , styleSheet="color: black;"), days_remain
         )
         form_layout.addRow(
-            QLabel("Needed Amount:", font=QFont("Arial", 10)), needed_val
+            QLabel("Needed Amount:", font=QFont("Arial", 10) , styleSheet="color: black;"), needed_val
         )
 
         layout.addLayout(form_layout)
-        layout.addStretch()
-
-
         layout.addStretch()
 
         close_btn = QPushButton("Close")
@@ -439,5 +434,4 @@ class SavingsGoalPage(QFrame):
         )
         close_btn.clicked.connect(dialog.accept)
         layout.addWidget(close_btn)
-
         dialog.exec()

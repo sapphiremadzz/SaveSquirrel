@@ -52,7 +52,7 @@ class ServiceGoal:
 
     def get_current_savings(self)-> float:
         current_savings = self.dashboard_service.fetch_dashboard_summary()
-        return current_savings.savings
+        return current_savings.get_savings()
 
     def needed_amount(self, goal: SavingsGoal) -> float:
         target_amount = float(goal.target_amount)
@@ -60,4 +60,3 @@ class ServiceGoal:
 
         needed_amount = target_amount - current_savings
         return max(0.00,needed_amount)
-

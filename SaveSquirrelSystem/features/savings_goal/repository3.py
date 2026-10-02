@@ -30,21 +30,8 @@ class GoalRepository:
                                 target_amount=row[2],
                                 target_date=row[3])
                     for row in rows]
+
     def delete_goal(self, goals: SavingsGoal) -> SavingsGoal:
         with self.database.connect() as conn:
             conn.execute("DELETE FROM goals WHERE id = ?", (goals.id,))
-        return goals
-
-    def update_goal(self, goals: SavingsGoal) -> SavingsGoal:
-        with self.database.connect() as conn:
-            conn.execute("""
-                   UPDATE goals
-                   SET title = ?, target_amount = ?, target_date = ?
-                   WHERE id = ?
-               """, (
-                goals.title,
-                goals.target_amount,
-                goals.target_date,
-                goals.id
-            ))
         return goals

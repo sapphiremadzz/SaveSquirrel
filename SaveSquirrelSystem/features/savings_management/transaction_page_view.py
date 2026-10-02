@@ -185,9 +185,6 @@ class TransactionPage(QFrame):
    # this part is on the transaction page where if the users click the submit button,
    # there is a messagebox that will pop up,
    def add_transactionClicked(self):
-       self.validation()
-
-   def validation(self):
        trans_type = self.comboType.currentText()
        category = self.comboCategory.currentText()
        amount_text = self.edit_amount.text()
