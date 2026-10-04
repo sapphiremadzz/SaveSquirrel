@@ -204,7 +204,7 @@ The system utilizes an **SQLite** database backend, storing persistent data loca
 ### Database Schema (Tables)
 
 #### 1. Table: `savings`
-Stores all individual financial records, including income streams and expense logs.
+Stores all individual financial records, including income and expenses.
 
 | Column | Type | Constraints | Description                                   |
 | :--- | :--- | :--- |:----------------------------------------------|
@@ -216,7 +216,7 @@ Stores all individual financial records, including income streams and expense lo
 | `date` | `TEXT` | `NOT NULL` | Transaction date in `yyyy-MM-dd` format       |
 
 #### 2. Table: `goals`
-Tracks user-defined short-term and long-term savings milestones.
+Tracks users goals.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
@@ -230,11 +230,11 @@ Tracks user-defined short-term and long-term savings milestones.
 
 The system isolates database communication inside the Repository layer using **parameterized SQL queries** to ensure memory safety and prevent SQL injection vulnerabilities.
 
-* **Create (Insert)**: Handled by `SavingsRepository.add_transaction_list()` and `GoalRepository.add_goal()`. They execute `INSERT INTO` queries to add rows into the `savings` and `goals` tables, returning the auto-generated primary key IDs (`lastrowid`).
+* **Create (Insert)**: Handled by `SavingsRepository.add_transaction_list()` and `GoalRepository.add_goal()`. They execute `INSERT INTO` queries to add rows into the `savings` and `goals` tables, returning the auto-generated primary key IDs.
 * **Read (Select)**: Handled by `SavingsRepository.get_all_transactions()` and `GoalRepository.get_all_goals()` using `SELECT ... ORDER BY id DESC` queries to fetch records sorted from newest to oldest.
 * **Update**: Executed by `SavingsRepository.update_transaction()` using parameterized `UPDATE savings SET type=?, category=?, amount=?, description=?, date=? WHERE id=?` SQL statements.
 * **Delete**: Executed by `SavingsRepository.delete_transaction()` and `GoalRepository.delete_goal()` using `DELETE FROM ... WHERE id = ?` queries to remove selected rows cleanly.
-* **Search / Filter**: Performed dynamically via `HistoryPage.filter_history()`. This queries memory-cached database lists to instantly match user input string filters against categories or formatted text IDs (e.g., `#T00001`).
+* **Search / Filter**: Performed dynamically via `HistoryPage.filter_history()`. This queries memory-cached database lists to instantly match user input on search bar string and filters against matching categories or formatted text IDs (e.g., `#T00001`).
 
 ## Screenshots
 
@@ -258,23 +258,23 @@ The pop up dialog for creating or adding a new goal.
 
 | Test Case / Feature | Inputs                                                                                   | Expected Result                                                                                   | Actual Result                                                | Status |
 | :--- |:-----------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------|:-------------------------------------------------------------| :--- |
-| **Add Valid Transaction** | **Type:** Income<br>**Category:** Salary<br>**Amount:** `1500`<br>**Date:** `2026-05-01` | Transaction saves successfully; totals and history update.                                        | Transaction saved to database and UI updated.                | Pass |
+| **Add Valid Transaction** | **Type:** Income<br>**Category:** Salary<br>**Amount:** `9000`<br>**Date:** `2026-09-11` | Transaction saves successfully; dashboard and history update.                                     | Transaction saved to database and UI updated.                | Pass |
 | **Add Invalid Amount** | **Amount:** `-5000` or `"50abc"`                                                         | Displays warning dialog: *"Amount must be a valid number."* or *"Amount must be greater than 0."* | Warning dialog displayed; invalid input blocked.             | Pass |
-| **Add Valid Savings Goal** | **Title:** `"Buy Laptop"`<br>**Target Amount:** `35000`<br>**Date:** `2026-12-31`        | Goal saves successfully and renders card under Active Goals.                                      | Goal saved and active goal card rendered.                    | Pass |
-| **Add Empty Goal Title** | **Title:** `" "`<br>**Target Amount:** `5000`                                            | Raises `ValueError` / Warning dialog: *"goal Title cannot be empty"*.                             | Warning dialog displayed; submission halted.                 | Pass |
-| **Search Filter** | **Search bar:** `"Salary"`                                                               | Displays only transactions matching category *"Salary"*.                                          | List filtered dynamically to show matching entries.          | Pass |
-| **Delete Transaction / Goal** | Click **Delete** on Transaction ID `#T00007` or Goal ID `#G00001` & confirm              | Item deleted from database and removed from UI frame list.                                        | Confirmation prompted; record deleted from DB and UI frames. | Pass |
-| **Update Transaction** | Change amount from `1000` to `2000`                                                      | Database entry updates, dashboard totals reflect new amount.                                      | Database entry updated and total metrics recalculated.       | Pass |
+| **Add Valid Savings Goal** | **Title:** `"Buy Laptop"`<br>**Target Amount:** `35000`<br>**Date:** `2026-12-31`        | Goal saves successfully and appears as a card under Active Goals Box.                             | Goal saved and active goal card rendered.                    | Pass |
+| **Add Empty Goal Title** | **Title:** `" "`<br>**Target Amount:** `5000`                                            | Raises `ValueError` / Warning dialog: *"Goal Title cannot be empty"*.                             | Warning dialog displayed; submission halted.                 | Pass |
+| **Search Filter** | **Search bar:** `"Salary"`                                                               | Displays only transactions matching the category *"Salary"*.                                      | List filtered dynamically to show matching entries.          | Pass |
+| **Delete Transaction / Goal** | Click **Delete** on Transaction ID `#T00007` or Goal ID `#G00001` & confirm              | Item deleted from database and removed from UI box frame list.                                    | Confirmation prompted; record deleted from DB and UI frames. | Pass |
+| **Update Transaction** | Change the amount from `1000` to `2000`                                                  | Database entry updates, dashboard also update.                                                    | Database entry updated and total metrics recalculated.       | Pass |
 
 ## Known Issues / Limitations
-* **Fixed Window Size:** The application has a fixed minimum layout that can prevent the application from scaling responsively on lower resolutions.
+* **Fixed Window Size:** The application has a fixed minimum layout and size that can prevent the application from scaling responsively.
 * **Search Limitation:** The transaction search filter works only with category name and transaction ID.
 * **No Progress Indicator:** There is no separate goal progress percentage and progress bar in the active savings goal card.
-* **No Notifications:** The application does not provide any notifications regarding any approaching goal due dates or goal progress updates.
-* **Hardcoded Currency:** Currency values are hardcoded as Philippines Peso (`₱`) across all the user interfaces; multi-currency selection options are not available yet.
+* **No Notifications:** The application does not provide any notifications regarding any approaching goal due dates or goal progress updates. So users manually view the progress to be aware.
+* **Fixed Currency:** Currency values are hardcoded as Philippines Peso (`₱`) across all the user interfaces; multi-currency selection options like `$` are not yet available.
 * **Static Categories:** Category values are fetched from a hardcoded dictionary in `transaction_page_view.py`. Custom user-defined categories cannot be added to the drop-down list.
 * **Exporting/Importing Data:** The application currently does not support the export of financial history report data in CSV, Excel, and PDF format.
-* **Single-user system:** The application is designed as a single-user desktop without multi-account login.
+* **Single-user system:** The application is designed as a single-user desktop without multiple account login.
 ## Author
 #### Sophia Margaret B. Madronero
 
