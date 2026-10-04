@@ -18,7 +18,7 @@
 - **Dashboard Overview:** 
  Displays current total income, expenses, dynamic net savings, and display of the 20 most recent transactions.
 - **Savings Transaction Logging:** 
-  Add new income or expense transactions with dependent category selections (e.g., Allowance, Salary, Transportation, Food), custom amounts, optional descriptions, and dates.
+  Easily record money in or out. Select options from dynamic dependent categories (e.g., Salary or Allowance for income; Food or Transportation for expenses), set custom amounts, add descriptions, and choose dates.
 - **Edit Transaction History & Search History:** 
   View all past transactions with search functionality to filter entries instantly by category or transaction ID. Update or delete individual transaction records directly through dedicated GUI dialogs, automatically syncing changes across the system.
 - **Savings Goals Management:** 
@@ -68,21 +68,21 @@ FinalSaveSquirrel/
 #### features/dashboard/:
 - **model2.py**: Encapsulates private attributes for income, expense, and net savings. 
 Use getters method for accessing private attributes(Read-Only).
-- **service2.py**: Fetches transactions summary and computes income totals, expense totals, and savings net balance.
-- **dashboard_page_view.py**: Renders the main dashboard cards and recent transaction (newest 20 transactions).
+- **service2.py**: Fetches transactions summary and computes the income totals, expense totals, and savings net balance.
+- **dashboard_page_view.py**: Builds visual summary cards and renders the top 20 recent transactions.
 
 #### features/savings_goal/:
 - **model3.py**: Goal Dataclass enforcing non-empty fields and validated target amounts for savings goals.
 - **repository3.py**: Handles SQL insertion, fetching, and deletion queries for goals.
-- **service3.py**: Business logic and Computes remaining days (track deadlines) and remaining amounts needed.
-- **savings_goal_view.py**: Renders active goal cards, goal creation modal dialogs, goal deletion, and goal details view(UI).
+- **service3.py**: Business logic and Computes remaining days (track deadlines) and the remaining amounts needed.
+- **savings_goal_view.py**: Display active goal cards, goal creation pop up dialogs, goal deletion, and goal details view(UI).
 
 #### features/savings_management/:
 - **model.py**: Savings Dataclass storing individual transaction fields (trans_type, category, amount, description, date).
 - **repository.py**: Executes SQL statements for adding, reading, updating, and deleting transactions.
 - **service.py**: Enforces positive monetary amount validations and formats transaction history.
 - **transaction_page_view.py**: Provides form UI with dependent combo boxes for adding transaction entries.
-- **history_page_view.py**: Renders interactive cards for past transactions with live search filtering, modifying and deletion of past transactions.
+- **history_page_view.py**: Display interactive cards for past transactions with live search filtering, modifying and deletion of past transactions by clicking specific buttons.
 
 #### Root File:
 - **main.py**: Sets up QApplication, initializes database/repositories/services, constructs the sidebar navigation.
@@ -99,7 +99,7 @@ Before running the project, make sure to install:
 
 1. **Clone the Repository or download the project files to your local machine**
    ```bash
-   git clone <YOUR_GITHUB_REPOSITORY_LINK> #if you have git installed
+   git clone [<YOUR_GITHUB_REPOSITORY_LINK>](https://github.com/sapphiremadzz/SaveSquirrelSystem.git) #if you have git installed
    
    or click the green Code button on the GitHub and select Download ZIP directly 
    #if you don not have git installed.
@@ -119,10 +119,11 @@ Before running the project, make sure to install:
    #if your using PyCharm, you do not need to set up VE.
    ```
    
-4. **Install PyQt6**
+4. **Install Dependencies like the PyQt6**
    Open the terminal inside the project and run:
    ```bash
    pip install PyQt6
+   #without PyQt6 the program will failed to run so make sure to install it on your terminal
    ```
 
 5. **Check the Project Structure**
@@ -144,7 +145,7 @@ The application should create the SQLite database file when the database compone
 ## How to Use the System
 
 ### 1. Dashboard Overview
-Launch the application to immediately view your net balance, total income, total expenses, and the latest transaction activity feed.
+Upon startup, the home dashboard displays your current total income, total expenses, net balance, and an activity log showing your latest 20 transactions.
 
 ### 2. Adding a Transaction
 Follow these steps to log a new record:
@@ -171,7 +172,7 @@ To track and monitor your goals:
 
 ## OOP Implementation
 
-The system utilizes Object-Oriented Programming (OOP) concepts throughout its architectural layers to maintain clean, scalable, and modular code.
+SaveSquirrel strictly follows Layered Architecture and Object-Oriented Design patterns to separate database work, business calculations, and UI presentation logic.
 
 ### Key Classes
 
@@ -186,7 +187,7 @@ The system utilizes Object-Oriented Programming (OOP) concepts throughout its ar
 ### OOP Principles Applied
 
 #### 1. Encapsulation
-- **Data Validation**: Internal data structures in `Savings` and `Goal` dataclasses format and validate data types immediately upon instantiation using the `__post_init__` method.
+- **Data Validation**: `__post_init__` hooks inside Savings and Goal dataclasses validate field types automatically upon object instantiation.
 - **Access Control**: Restricts direct access to core financial data. For example, `Dashboard` class protects internal calculations by hiding internal values using private attributes (`__income`, `__expense`, `__savings`) with double-underscores and exposes read-only getter methods:
   - `get_income()`
   - `get_expense()`
@@ -198,8 +199,8 @@ The system utilizes Object-Oriented Programming (OOP) concepts throughout its ar
   - `DashboardPage`, `TransactionPage`, `HistoryPage`, and `SavingsGoalPage` inherit from `QFrame`.
 
 ## Database Architecture
+The application relies on SQLite to manage persistent local data via `savings_management.db` file.
 
-The system utilizes an **SQLite** database backend, storing persistent data locally in the `savings_management.db` file.
 
 ### Database Schema (Tables)
 
@@ -234,7 +235,7 @@ The system isolates database communication inside the Repository layer using **p
 * **Read (Select)**: Handled by `SavingsRepository.get_all_transactions()` and `GoalRepository.get_all_goals()` using `SELECT ... ORDER BY id DESC` queries to fetch records sorted from newest to oldest.
 * **Update**: Executed by `SavingsRepository.update_transaction()` using parameterized `UPDATE savings SET type=?, category=?, amount=?, description=?, date=? WHERE id=?` SQL statements.
 * **Delete**: Executed by `SavingsRepository.delete_transaction()` and `GoalRepository.delete_goal()` using `DELETE FROM ... WHERE id = ?` queries to remove selected rows cleanly.
-* **Search / Filter**: Performed dynamically via `HistoryPage.filter_history()`. This queries memory-cached database lists to instantly match user input on search bar string and filters against matching categories or formatted text IDs (e.g., `#T00001`).
+* **Search / Filter**: Performed dynamically via `HistoryPage.filter_history()`. This queries memory-cached database lists to instantly match user input on search bar string and filters against matching categories or formatted text IDs.
 
 ## Screenshots
 
@@ -269,11 +270,10 @@ The pop up dialog for creating or adding a new goal.
 ## Known Issues / Limitations
 * **Fixed Window Size:** The application has a fixed minimum layout and size that can prevent the application from scaling responsively.
 * **Search Limitation:** The transaction search filter works only with category name and transaction ID.
-* **No Progress Indicator:** There is no separate goal progress percentage and progress bar in the active savings goal card.
+* **No Progress Indicator:** Active goal cards show text metrics (days and amounts remaining). There is no separate goal progress percentage and progress bar in the active savings goal card.
 * **No Notifications:** The application does not provide any notifications regarding any approaching goal due dates or goal progress updates. So users manually view the progress to be aware.
 * **Fixed Currency:** Currency values are hardcoded as Philippines Peso (`₱`) across all the user interfaces; multi-currency selection options like `$` are not yet available.
 * **Static Categories:** Category values are fetched from a hardcoded dictionary in `transaction_page_view.py`. Custom user-defined categories cannot be added to the drop-down list.
-* **Exporting/Importing Data:** The application currently does not support the export of financial history report data in CSV, Excel, and PDF format.
 * **Single-user system:** The application is designed as a single-user desktop without multiple account login.
 ## Author
 #### Sophia Margaret B. Madronero
