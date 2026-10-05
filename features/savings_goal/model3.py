@@ -14,7 +14,7 @@ class Goal:
         self.target_date = str(self.target_date).strip()
 
         if not self.title:
-            raise ValueError ("goal Title cannot be empty")
+            raise ValueError ("Goal Title cannot be empty")
         if self.target_amount == "" or self.target_amount is None:
             raise ValueError ("Target amount cannot be empty")
         if not self.target_date:

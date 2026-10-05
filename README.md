@@ -16,9 +16,9 @@
 
 ## Features
 - **Dashboard Overview:** 
- Displays current total income, expenses, dynamic net savings, and display of the 20 most recent transactions.
+ Displays the summary of current total income, expenses, dynamic net savings, and display of the 20 most recent transactions.
 - **Savings Transaction Logging:** 
-  Easily record money in or out. Select options from dynamic dependent categories (e.g., Salary or Allowance for income; Food or Transportation for expenses), set custom amounts, add descriptions, and choose dates.
+  Easily record money in or out. Select options from dynamic dependent combobox categories (e.g., Salary or Allowance for income; Food or Transportation for expenses), set custom amounts, add descriptions(optional), and choose or set current dates.
 - **Edit Transaction History & Search History:** 
   View all past transactions with search functionality to filter entries instantly by category or transaction ID. Update or delete individual transaction records directly through dedicated GUI dialogs, automatically syncing changes across the system.
 - **Savings Goals Management:** 
@@ -28,7 +28,7 @@
 - Programming Language: Python
 - GUI Framework: PyQt6
 - Database: SQLite (sqlite3)
-- Standard Python Libraries: pathlib, dataclasses, sys, datetime 
+- Standard Python Libraries: pathlib, dataclasses, sys, datetime, sqlite3 
 
 
 ## Project Structure
@@ -55,7 +55,7 @@ FinalSaveSquirrel/
 │       ├── repository.py            # Savings SQL database execution repository
 │       ├── service.py               # Transaction business logic & input validation
 │       ├── transaction_page_view.py # PyQt6 UI form view for adding transactions
-│       └── history_page_view.py     # PyQt6 UI view for viewing/filtering/editing history
+│       └── history_page_view.py     # Inherited UI frame from Transaction page for searching, updating & deleting
 │
 └── main.py                          # Main entry point & QMainWindow sidebar navigation
 
@@ -145,20 +145,20 @@ The application should create the SQLite database file when the database compone
 ## How to Use the System
 
 ### 1. Dashboard Overview
-Upon startup, the home dashboard displays your current total income, total expenses, net balance, and an activity log showing your latest 20 transactions.
+Upon startup, the dashboard (home page) displays your current total income, total expenses, net balance, and an activity log showing your latest 20 transactions.
 
 ### 2. Adding a Transaction
 Follow these steps to log a new record:
 1. Click the `+ Add Transaction` button on the sidebar.
 2. Select the transaction type (`Income` or `Expense`) from the first combo box.
-3. Choose a corresponding category from the dynamic dropdown combo box.
-4. Enter the amount, add a description (optional), and select the transaction date, current date was also set.
-5. Click `Submit Transaction` and confirm the action in the prompt.
+3. Choose a corresponding category from the dynamic dependent dropdown combo box.
+4. Enter custom amount, add a description (optional), and select the transaction date, current date was also set.
+5. Click `Submit Transaction` and confirm the action in the prompt. Success message prompt will display on screen if your transaction was save, otherwise failed message.
 
 ### 3. Viewing History & Editing
 To audit or modify your past records:
 1. Click `View / Edit History` on the sidebar.
-2. Use the search bar at the top to filter transactions instantly by **category name** or **transaction ID** (e.g., `#T00010`).
+2. Use the search bar at the top to filter transactions instantly by searching for **category name** or **transaction ID** (e.g., `#T00010`).
 3. In the history table list, click `Update` to modify transaction details, or click `Delete` to completely remove the transaction.
 
 ### 4. Managing Savings Goals
@@ -176,11 +176,16 @@ SaveSquirrel strictly follows Layered Architecture and Object-Oriented Design pa
 
 ### Key Classes
 
+#### Database
 - **`SavingsDatabase`**: Manages SQLite database instantiation and schema creation.
+#### Models
 - **`Savings` & `Goal`**: Domain dataclass models storing transaction and target goal attributes.
 - **`Dashboard`**: Data model representing summarized income, expense, and net savings totals.
+#### Repositories
 - **`SavingsRepository` & `GoalRepository`**: Data Access Objects (DAOs) executing parameterized SQL commands.
+#### Services
 - **`SavingsService`**, **`DashboardService`**, & **`ServiceGoal`**: Service layer classes executing core business logic and operations, calculations, and validations.
+#### UI Views
 - **`DashboardPage`**, **`TransactionPage`**, **`HistoryPage`**, & **`SavingsGoalPage`**: Custom `QFrame` subclasses building the desktop UI views.
 - **`MainWindow`**: `QMainWindow` subclass organizing the main screen layout, sidebar menu, dependencies, and page navigation.
 
@@ -192,12 +197,45 @@ SaveSquirrel strictly follows Layered Architecture and Object-Oriented Design pa
   - `get_income()`
   - `get_expense()`
   - `get_savings()`
+   ```bash
+   python model2.py
+  
+    class Dashboard:
+    def __init__(self, income: float, expense: float, savings: float):
+        self.__income = float(income)
+        self.__expense = float(expense)
+        self.__savings = float(savings)
+
+    def get_income(self) -> float:
+        return self.__income
+   ```
 
 #### 2. Inheritance
 - **PyQt6 Widget Extension**: Class inheritance is heavily utilized to extend built-in GUI frameworks. 
   - `MainWindow` inherits from `QMainWindow`.
   - `DashboardPage`, `TransactionPage`, `HistoryPage`, and `SavingsGoalPage` inherit from `QFrame`.
+```bash
+   class DashboardPage(QFrame): #inherit QFrame
+      pass
+   class MainWindow(QMainWindow): #Inherit QMainWindow
+      pass
+   ```
+#### 3. Polymorphism
+* **Method Overriding (Subclass Specialization)**: `HistoryPage` overrides inherited methods from `TransactionPage` to adapt shared components for history management:
+  * `header()`: Overridden to transform the static title from *"Add Transaction"* to *"Transaction History"*.
+  * `transactionBox_layout()`: Overridden to replace the data-entry form with a dynamic search bar (`QLineEdit`), a scrollable transaction list area (`QScrollArea`), and interactive record cards.
+```bash
+   class HistoryPage(TransactionPage): #Inherit TransactionPage
 
+    def __init__(self, service: SavingsService):
+        super().__init__(service)
+        self.load_history()
+        
+    def header(self ):
+    #Override
+    def transactionBox_layout(self):
+    #Override
+   ```
 ## Database Architecture
 The application relies on SQLite to manage persistent local data via `savings_management.db` file.
 
@@ -205,7 +243,7 @@ The application relies on SQLite to manage persistent local data via `savings_ma
 ### Database Schema (Tables)
 
 #### 1. Table: `savings`
-Stores all individual financial records, including income and expenses.
+Stores all individual transaction records, including income and expenses.
 
 | Column | Type | Constraints | Description                                   |
 | :--- | :--- | :--- |:----------------------------------------------|
@@ -217,7 +255,7 @@ Stores all individual financial records, including income and expenses.
 | `date` | `TEXT` | `NOT NULL` | Transaction date in `yyyy-MM-dd` format       |
 
 #### 2. Table: `goals`
-Tracks users goals.
+Stores all users goals.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |

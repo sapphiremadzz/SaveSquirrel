@@ -15,27 +15,29 @@ from features.savings_management.history_page_view import HistoryPage
 msg_font = QFont("Arial", 11)
 #this is the style sheet for qmessagebox
 white_bg_style = """
-                                   QMessageBox {
-                                       background-color: #5c826f;
-                                   }
-                                   QMessageBox QLabel {
-                                       color: white;
-                                       background-color: transparent;
-                                       border: none;
-                                   }
-                                   QMessageBox QPushButton { 
-                                       background-color: #ffffff; 
-                                       color: #19572a; 
-                                       border-radius: 4px; 
-                                       min-width: 30px;
-                                       min-height: 10px;
-                                       font-weight: bold; 
-                                       border: none;
-                                   }
-                                   QMessageBox QPushButton:hover { 
-                                       background-color: #e0f2f1; 
-                                   }
-                               """
+    QMessageBox {
+        background-color: #5c826f;
+    }
+    QMessageBox QLabel {
+        color: white;
+        background-color: transparent;
+        border: none;
+        font-size: 13px;
+    }
+    QMessageBox QPushButton { 
+        background-color: #ffffff; 
+        color: #19572a; 
+        border-radius: 4px; 
+        min-width: 40px;
+        min-height: 20px;
+        padding: 4px 12px;
+        font-weight: bold; 
+        border: none;
+    }
+    QMessageBox QPushButton:hover { 
+        background-color: #e0f2f1; 
+    }
+"""
 
 class SavingsGoalPage(QFrame):
     def __init__(self, service_goal: ServiceGoal):

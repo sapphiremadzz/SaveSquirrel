@@ -31,6 +31,11 @@ class TransactionPage(QFrame):
        self.transaction_layout = QVBoxLayout()
        self.setLayout(self.transaction_layout)
 
+       self.header()
+
+       self.transactionBox_layout()
+
+   def header(self ):
        # Main Page Title Header
        self.transaction_label = QLabel("Add Transaction", self)
        self.transaction_label.setFont(QFont('Arial', 30, weight=QFont.Weight.Bold))
@@ -38,9 +43,9 @@ class TransactionPage(QFrame):
        self.transaction_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
        self.transaction_layout.addWidget(self.transaction_label)
-       self.transactionBox()
 
-   def transactionBox(self) :
+
+   def transactionBox_layout(self) :
        #this is the containter para sa mga input fields
        self.transaction_box = QFrame()
        self.transaction_box.setStyleSheet("background-color: #c5e3ce; border-radius: 0px;")

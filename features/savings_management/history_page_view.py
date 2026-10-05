@@ -37,40 +37,35 @@ white_bg_style = """
 """
 
 # THIS CLASS IS FOR HISTORY VIEWING (WITH UI)
-class HistoryPage(QFrame):
+class HistoryPage(TransactionPage):
 
     def __init__(self, service: SavingsService):
-        super().__init__()
-        self.service = service
+        super().__init__(service)
         self.setStyleSheet("background-color: white; border-radius: 10px; padding: 15px;")
         self.all_transactions_cache = [] #Local cache storing fetched transactions for fast filtering without repeated DB queries
-        self.initUI()
+
 
         self.load_history()
 
-    def initUI(self) -> None:
-        #this is the main layout
-        history_layout = QVBoxLayout()
-        self.setLayout(history_layout)
-
-        #Main page title header
+    def header(self ):
+        # Main page title header
         self.history_label = QLabel("Transaction History", self)
         self.history_label.setFont(QFont('Arial', 30, weight=QFont.Weight.Bold))
         self.history_label.setStyleSheet("color: #19572a;")
         self.history_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.transaction_layout.addWidget(self.history_label)
 
-        history_layout.addWidget(self.history_label)
-
-        #This is the search bar, users type here to search for past transactions
+    def transactionBox_layout(self):
+        # This is the search bar, users type here to search for past transactions
         self.search_bar = QLineEdit(self)
         self.search_bar.setPlaceholderText("Search history by UID or category...")
         self.search_bar.setFont(QFont("Arial", 10))
         self.search_bar.setStyleSheet("background-color: white; color:black; border: 1px solid #e0f2f1;")
-        #signals and trigger filter_history dynamically whenever text changes in the search bar
+        # signals and trigger filter_history dynamically whenever text changes in the search bar
         self.search_bar.textChanged.connect(self.filter_history)
-        history_layout.addWidget(self.search_bar)
+        self.transaction_layout.addWidget(self.search_bar)
 
-        #frame container for transaction history records
+        # frame container for transaction history records
         history_frame = QFrame()
         history_frame.setStyleSheet("background-color: white; border: 1px solid #e0f2f1;")
         history_frame.setMinimumSize(600, 500)
@@ -78,11 +73,11 @@ class HistoryPage(QFrame):
         historyFrame_layout = QVBoxLayout(history_frame)
         historyFrame_layout.setContentsMargins(5, 5, 5, 5)
 
-        #this is the scroll area which enable scrolling when transaction items count exceeds screen height
+        # this is the scroll area which enable scrolling when transaction items count exceeds screen height
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setStyleSheet("background-color: transparent; border: none; outline: none;")
-        #contains the content widget inside the scroll area containing the actual transaction item cards
+        # contains the content widget inside the scroll area containing the actual transaction item cards
         self.scroll_content = QWidget()
         self.scroll_content.setStyleSheet("background-color: transparent; border: none;")
 
@@ -92,8 +87,10 @@ class HistoryPage(QFrame):
 
         scroll.setWidget(self.scroll_content)
         historyFrame_layout.addWidget(scroll)
-        history_layout.addWidget(history_frame)
-        history_layout.addStretch()
+        self.transaction_layout.addWidget(history_frame)
+
+
+
 
     def add_historyCard(self, transaction: Savings, show_buttons=False):
         # this is for showing the save transactions card
