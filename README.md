@@ -99,7 +99,7 @@ Before running the project, make sure to install:
 
 1. **Clone the Repository or download the project files to your local machine**
    ```bash
-   git clone [<YOUR_GITHUB_REPOSITORY_LINK>](https://github.com/sapphiremadzz/SaveSquirrelSystem.git) #if you have git installed
+   git clone https://github.com/sapphiremadzz/SaveSquirrelSystem.git #if you have git installed
    
    or click the green Code button on the GitHub and select Download ZIP directly 
    #if you don not have git installed.
@@ -166,7 +166,7 @@ To track and monitor your goals:
 1. Open the `Savings Goals` tab on the sidebar.
 2. Click the `Add Goal` button to open the modal dialog box.
 3. Enter your **Goal Title**, **Target Amount**, and **Target Date**.
-4. Click `Add Goal` to confirm and display your new goal card in the **Active Goals** list. 
+4. Click `Add Goal` to confirm and prompt success message if success otherwise failed and display success new goal card in the **Active Goals** list. 
 5. Click `View` on any active card to track its deadline and see the remaining amount needed for each target amount.
 6. Click `Delete` on any goal card to remove it from the system.
 
