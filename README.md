@@ -149,7 +149,7 @@ Upon startup, the dashboard (home page) displays your current total income, tota
 
 ### 2. Adding a Transaction
 Follow these steps to log a new record:
-1. Click the `+ Add Transaction` button on the sidebar.
+1. Click the `+ Add Transaction` button on the left sidebar.
 2. Select the transaction type (`Income` or `Expense`) from the first combo box.
 3. Choose a corresponding category from the dynamic dependent dropdown combo box.
 4. Enter custom amount, add a description (optional), and select the transaction date, current date was also set.
@@ -157,13 +157,13 @@ Follow these steps to log a new record:
 
 ### 3. Viewing History & Editing
 To audit or modify your past records:
-1. Click `View / Edit History` on the sidebar.
+1. Click `View / Edit History` button on the left sidebar.
 2. Use the search bar at the top to filter transactions instantly by searching for **category name** or **transaction ID** (e.g., `#T00010`).
 3. In the history table list, click `Update` to modify transaction details, or click `Delete` to completely remove the transaction.
 
 ### 4. Managing Savings Goals
 To track and monitor your goals:
-1. Open the `Savings Goals` tab on the sidebar.
+1. Open the `Savings Goals` button on the left sidebar.
 2. Click the `Add Goal` button to open the modal dialog box.
 3. Enter your **Goal Title**, **Target Amount**, and **Target Date**.
 4. Click `Add Goal` to confirm and prompt success message if success otherwise failed and display success new goal card in the **Active Goals** list. 
@@ -267,13 +267,12 @@ Stores all users goals.
 
 ### Database Operations (CRUD)
 
-The system isolates database communication inside the Repository layer using **parameterized SQL queries** to ensure memory safety and prevent SQL injection vulnerabilities.
+In this system, the communication between databases is specifically executed on the territory of the Repository layer via the usage of parameterized SQL inquiries. This guarantees the security of the memory and avoids vulnerabilities of SQL injections.
 
-* **Create (Insert)**: Handled by `SavingsRepository.add_transaction_list()` and `GoalRepository.add_goal()`. They execute `INSERT INTO` queries to add rows into the `savings` and `goals` tables, returning the auto-generated primary key IDs.
+* **Create (Insert)**: The function to execute this task is assigned to the `SavingsRepository.add_transaction_list()` and `GoalRepository.add_goal()`. They execute `INSERT INTO` queries  to insert rows into tables of savings and goals and therefore returns auto-generated primary keys IDs
 * **Read (Select)**: Handled by `SavingsRepository.get_all_transactions()` and `GoalRepository.get_all_goals()` using `SELECT ... ORDER BY id DESC` queries to fetch records sorted from newest to oldest.
 * **Update**: Executed by `SavingsRepository.update_transaction()` using parameterized `UPDATE savings SET type=?, category=?, amount=?, description=?, date=? WHERE id=?` SQL statements.
 * **Delete**: Executed by `SavingsRepository.delete_transaction()` and `GoalRepository.delete_goal()` using `DELETE FROM ... WHERE id = ?` queries to remove selected rows cleanly.
-* **Search / Filter**: Performed dynamically via `HistoryPage.filter_history()`. This queries memory-cached database lists to instantly match user input on search bar string and filters against matching categories or formatted text IDs.
 
 ## Screenshots
 
