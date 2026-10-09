@@ -15,14 +15,20 @@
  - To demonstrate clean software design principles using Python, PyQt6, SQLite, and Layered Architecture.
 
 ## Features
-- **Dashboard Overview:** 
- Displays the summary of current total income, expenses, dynamic net savings, and display of the 20 most recent transactions.
-- **Savings Transaction Logging:** 
-  Easily record money in or out. Select options from dynamic dependent combobox categories (e.g., Salary or Allowance for income; Food or Transportation for expenses), set custom amounts, add descriptions(optional), and choose or set current dates.
-- **Edit Transaction History & Search History:** 
-  View all past transactions with search functionality to filter entries instantly by category or transaction ID. Update or delete individual transaction records directly through dedicated GUI dialogs, automatically syncing changes across the system.
-- **Savings Goals Management:** 
-  Set savings goals with custom target goal titles (e.g., Buying a Laptop), set target amounts, and target completion dates. View and manage active savings goals include displaying remaining days and needed amounts. Users can also remove or delete savings goals.
+### Dashboard Overview:
+ - Displays the total income
+ - Display total expenses
+ - Display total net savings
+ - Display the top 20 most recent transactions.
+### Savings Management Transaction Logging:** 
+ - Add transactions (Income, Expense) with categories, enter amount, descriptions(optional), set dates 
+ - Edit and update details of past transaction records 
+ - Search transaction history instantly by category name or transaction ID
+ - Delete a Transactions 
+### Savings Goals Management:
+ - Add and set savings goals with custom target goal titles (e.g., Buying a Laptop), set target amounts, and target completion dates. 
+ - View and manage active savings goals include displaying remaining days and needed amounts.
+ - Delete active savings goals when completed or no longer needed
 
 ## Technologies Used
 - Programming Language: Python
@@ -286,7 +292,7 @@ This page is responsible for displaying the form for adding entries and inputtin
 This page is responsible for displaying searchable list of logged transactions with update and delete buttons.
 ![History Screenshot](screenshots/history.png)
 this is the pop up dialog for updating a transaction if users click the update button
-![Update Screenshot](screenshots/update.png)
+![Update Screenshot](screenshots/updates.png)
 ### Savings Goal Page:
  This page is responsible for displaying active target savings cards and goal dialog popups plus view and delete buttons. Can view and track goal deadlines and needed amount.
 ![Goal Screenshot](screenshots/goal.png)

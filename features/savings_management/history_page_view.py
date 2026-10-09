@@ -10,7 +10,7 @@ from features.savings_management.repository import SavingsRepository
 from features.savings_management.transaction_page_view import TransactionPage
 
 msg_font = QFont("Arial", 11)
-#this is the stylesheet for Qmessagebox
+# this is the stylesheet for Qmessagebox
 white_bg_style = """
     QMessageBox {
         background-color: #5c826f;
@@ -36,18 +36,18 @@ white_bg_style = """
     }
 """
 
+
 # THIS CLASS IS FOR HISTORY VIEWING (WITH UI)
 class HistoryPage(TransactionPage):
 
     def __init__(self, service: SavingsService):
         super().__init__(service)
         self.setStyleSheet("background-color: white; border-radius: 10px; padding: 15px;")
-        self.all_transactions_cache = [] #Local cache storing fetched transactions for fast filtering without repeated DB queries
-
+        self.all_transactions_cache = []  # Local cache storing fetched transactions for fast filtering without repeated DB queries
 
         self.load_history()
 
-    def header(self ):
+    def header(self):
         # Main page title header
         self.history_label = QLabel("Transaction History", self)
         self.history_label.setFont(QFont('Arial', 30, weight=QFont.Weight.Bold))
@@ -89,9 +89,6 @@ class HistoryPage(TransactionPage):
         historyFrame_layout.addWidget(scroll)
         self.transaction_layout.addWidget(history_frame)
 
-
-
-
     def add_historyCard(self, transaction: Savings, show_buttons=False):
         # this is for showing the save transactions card
         # this frame serves as the cards or box for viewing every records
@@ -119,7 +116,7 @@ class HistoryPage(TransactionPage):
         # category[0] means the first index of the letter
         is_expense = str(transaction.trans_type).lower() == "expense"
         icon_letter = str(transaction.category)[0].upper()
-        #color coding icon for transaction type(Income vs Expense)
+        # color coding icon for transaction type(Income vs Expense)
         bg_color = "#fde8e8" if is_expense else "#e8f5e9"
         fg_color = "#ad5a61" if is_expense else "#2e7d32"
 
@@ -131,7 +128,7 @@ class HistoryPage(TransactionPage):
         item_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
 
         # this part is for the Category, formated UID, and description if applicable
-        #another container for layouts ng saganun di magconflicts ang mga layouts
+        # another container for layouts ng saganun di magconflicts ang mga layouts
         text_container = QWidget()
         text_container.setStyleSheet("background-color: transparent; border: none;")
         text_layout = QVBoxLayout(text_container)
@@ -143,7 +140,7 @@ class HistoryPage(TransactionPage):
         title_label.setFont(QFont("Arial", 10, weight=QFont.Weight.Bold))
         title_label.setStyleSheet("color: #2c3e50; border: none; margin: 0px; padding: 0px;")
 
-        #parang ganito siya #T00001
+        # parang ganito siya #T00001
         formatted_id = f"ID: #T{int(transaction.id):05d}"
 
         id_label = QLabel(formatted_id)
@@ -158,12 +155,12 @@ class HistoryPage(TransactionPage):
         if transaction.description:
             desc_text = str(transaction.description)
             if len(desc_text) > 80:
-                desc_text = desc_text[:80] + "..." #length of 80 characters only
+                desc_text = desc_text[:80] + "..."  # length of 80 characters only
             desc_label = QLabel(f"Note: {desc_text}")
             desc_label.setFont(QFont("Arial", 8, italic=True))
             desc_label.setStyleSheet("color: #4a5568; border: none; margin: 0px; padding: 0px;")
             text_layout.addWidget(desc_label)
-        #stretch 1 means para mat space siya sa gitna
+        # stretch 1 means para mat space siya sa gitna
         item_layout.addWidget(text_container, 1, Qt.AlignmentFlag.AlignVCenter)
 
         # this is for the formatted and layout date and amount with prefix + for income and - for expense
@@ -199,7 +196,7 @@ class HistoryPage(TransactionPage):
         amount_date_layout.addWidget(date_label)
 
         item_layout.addWidget(amount_date_container, 0, Qt.AlignmentFlag.AlignVCenter)
-        #puss buttons (Update and delete)
+        # puss buttons (Update and delete)
         if show_buttons:
             btn_container = QWidget()
             btn_container.setStyleSheet("background-color: transparent; border: none;")
@@ -208,7 +205,7 @@ class HistoryPage(TransactionPage):
             btn_layout.setSpacing(4)
             btn_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-            #Update Button
+            # Update Button
             update_button = QPushButton("Update")
             update_button.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
             update_button.setFixedSize(70, 26)
@@ -229,7 +226,7 @@ class HistoryPage(TransactionPage):
                 lambda checked, obj=transaction: self.update_historyClicked(obj)
             )
 
-            #Delete Button
+            # Delete Button
             delete_button = QPushButton("Delete")
             delete_button.setFont(QFont("Arial", 8, weight=QFont.Weight.Bold))
             delete_button.setFixedSize(70, 26)
@@ -256,13 +253,12 @@ class HistoryPage(TransactionPage):
 
         return self.item_frame
 
-
     def add_history(self, transaction: Savings, show_buttons=True):
         item_frame = self.add_historyCard(transaction=transaction,
-            show_buttons=show_buttons)
+                                          show_buttons=show_buttons)
         self.historyTransaction_layout.addWidget(item_frame)
 
-    def delete_historyClicked(self , transaction : Savings, item_widget):
+    def delete_historyClicked(self, transaction: Savings, item_widget):
         """Handles deletion process for a transaction item.
             Prompt user for confirmation, removes record from DB, and destroys the card widget.
                 """
@@ -276,13 +272,13 @@ class HistoryPage(TransactionPage):
         msg.setStyleSheet(white_bg_style)
 
         if msg.exec() == QMessageBox.StandardButton.Yes:
-            self.service.delete(transaction.id) #madelete ni siya from database
+            self.service.delete(transaction.id)  # madelete ni siya from database
 
             # purpose ani is to delete a frame from UI layout and free some space
             self.historyTransaction_layout.removeWidget(item_widget)
             item_widget.deleteLater()
 
-            #Reload cache if layout becomes empty
+            # Reload cache if layout becomes empty
             if self.historyTransaction_layout.count() == 0:
                 self.load_history()
 
@@ -291,17 +287,24 @@ class HistoryPage(TransactionPage):
         dialog = QDialog(self)
         dialog.setWindowTitle(f"Update Transaction #{transaction.id:06d}")
         dialog.setStyleSheet("background-color: #f5fcf9; border-radius: 8px;")
-        dialog_layout = QVBoxLayout(dialog)
 
-        edit_page = TransactionPage(service=self.service) #just reused the code UI from transactionPage ginawa ko lang qdialog
-        #just change a little
-        edit_page.setStyleSheet("background-color: #f5fcf9; border-radius: 8px;")
+        # Set dialog layout with tighter padding
+        dialog_layout = QVBoxLayout(dialog)
+        dialog_layout.setContentsMargins(10, 10, 10, 10)
+        dialog_layout.setSpacing(0)
+
+        edit_page = TransactionPage(
+            service=self.service)  # just reused the code UI from transactionPage ginawa ko lang qdialog
+        # just change a little
+        edit_page.setStyleSheet("background-color: #f5fcf9; border-radius: 8px; padding: 0px;")
         edit_page.transaction_label.setText(f"Edit Transaction #{transaction.id:06d}")
-        edit_page.transaction_label.setFont(QFont('Arial', 20, weight=QFont.Weight.Bold))
+        edit_page.transaction_label.setFont(QFont('Arial', 18, weight=QFont.Weight.Bold))
         edit_page.transaction_box.setStyleSheet("background-color: #f5fcf9; border-radius: 8px;")
 
-        edit_page.transaction_box.setFixedSize(480, 530)
-        edit_page.transaction_box.setContentsMargins(2, 0, 0, 0)
+        # Removed fixed height so it snugly fits the content, set maximum width
+        edit_page.transaction_box.setMaximumWidth(450)
+        edit_page.transaction_box.setContentsMargins(0, 0, 0, 0)
+
         edit_page.comboType.setFont(QFont('Arial', 10))
         edit_page.comboCategory.setFont(QFont('Arial', 10))
         edit_page.edit_amount.setFont(QFont('Arial', 10))
@@ -322,6 +325,12 @@ class HistoryPage(TransactionPage):
         if cat_idx != -1:
             # Set the selected category in the dropdown to match the saved transaction's category
             edit_page.comboCategory.setCurrentIndex(cat_idx)
+        else:
+            # If category is not in standard list, select "Other" and fill custom category line edit
+            other_idx = edit_page.comboCategory.findText("Other")
+            if other_idx != -1:
+                edit_page.comboCategory.setCurrentIndex(other_idx)
+                edit_page.edit_custom_category.setText(transaction.category)
 
         # Attach a signals so if the user manually changes the combobox type (Income <-> Expense)
         # during editing, the category list will dynamically update to display matching options.
@@ -336,7 +345,7 @@ class HistoryPage(TransactionPage):
             edit_page.date_box.setDate(qdate)
 
         # Modify default button behavior for editing mode
-        edit_page.submit_transaction.setText("Save Changes") #modify the label text of the button
+        edit_page.submit_transaction.setText("Save Changes")  # modify the label text of the button
         # Remove old signal connections
         # By default, clicking this button triggers the "Add New Transaction" method.
         # Disconnecting it ensures we don't accidentally create a duplicate record when saving edits.
@@ -358,16 +367,23 @@ class HistoryPage(TransactionPage):
                 msg.exec()
                 return
 
+            # Extract category (check if 'Other' is selected)
+            if edit_page.comboCategory.currentText().strip().lower() == "other":
+                custom_cat = edit_page.edit_custom_category.text().strip()
+                selected_category = custom_cat if custom_cat else "Other"
+            else:
+                selected_category = edit_page.comboCategory.currentText()
+
             updated_savings = Savings(
                 id=transaction.id,
                 trans_type=edit_page.comboType.currentText(),
-                category=edit_page.comboCategory.currentText(),
+                category=selected_category,
                 amount=valid,
                 description=edit_page.edit_description.text(),
                 date=edit_page.date_box.date().toString("yyyy-MM-dd")
             )
 
-            #confirm message dialog if all updated inputs are valid
+            # confirm message dialog if all updated inputs are valid
             confirm_msg = QMessageBox(dialog)
             confirm_msg.setIcon(QMessageBox.Icon.Question)
             confirm_msg.setWindowTitle("Confirm Update")
@@ -380,7 +396,7 @@ class HistoryPage(TransactionPage):
             if confirm_msg.exec() != QMessageBox.StandardButton.Yes:
                 return
 
-            #saves updates to the database via service
+            # saves updates to the database via service
             try:
                 self.service.update(updated_savings)
             except Exception as e:
@@ -393,7 +409,7 @@ class HistoryPage(TransactionPage):
                 msg.exec()
                 return
 
-            #this is for the success message
+            # this is for the success message
             msg = QMessageBox(dialog)
             msg.setIcon(QMessageBox.Icon.Information)
             msg.setWindowTitle("Success")
@@ -404,7 +420,7 @@ class HistoryPage(TransactionPage):
 
             dialog.accept()
 
-        #Connect new save_changes to button
+        # Connect new save_changes to button
         edit_page.submit_transaction.clicked.connect(save_changes)
 
         dialog_layout.addWidget(edit_page)
@@ -416,7 +432,7 @@ class HistoryPage(TransactionPage):
     @staticmethod
     def clear_layout(layout):
         """Clears all item widgets from any given layout. This also make sure to avoid duplicate item frames"""
-        #pag wala ni magduplicate ang mga UI frame
+        # pag wala ni magduplicate ang mga UI frame
         while layout.count() > 0:
             item = layout.takeAt(0)
             if item.widget():
@@ -426,7 +442,7 @@ class HistoryPage(TransactionPage):
         HistoryPage.clear_layout(self.historyTransaction_layout)
 
     def load_history(self):
-        #calling the self.service.fetch_formatted_history() para kunin ang mga records sa data base
+        # calling the self.service.fetch_formatted_history() para kunin ang mga records sa data base
         # feed or kunin ang mga data galing sa service and update the all_transactions_caCHE
         self.all_transactions_cache = self.service.fetch_formatted_history(limit=None) or []
         self.filter_history()
@@ -434,18 +450,18 @@ class HistoryPage(TransactionPage):
     def filter_history(self):
         """Filters cached items instantly when user types in the search bar."""
         self.clear_history_layout()
-        query = self.search_bar.text().strip().lower() #set lang sa lower para di case sensitive
+        query = self.search_bar.text().strip().lower()  # set lang sa lower para di case sensitive
 
         # Apply search condition against category and UID, set formatted ID so that when users type 0000, magshow up gihapon siya
         filtered_items = [
             item for item in self.all_transactions_cache
             if query in str(item.category).lower()
-            or query in str(item.id).lower()
-            or query in f"#T{item.id:05d}".lower()
+               or query in str(item.id).lower()
+               or query in f"#T{item.id:05d}".lower()
         ]
 
-        #if users search something on the search bar but hindi siya nakasave sa dataabse or wala sa itemframe
-        #magdidisplay na no matchingtransactions found, or if wala pang transactions,no transactions yet ang lalabas
+        # if users search something on the search bar but hindi siya nakasave sa dataabse or wala sa itemframe
+        # magdidisplay na no matchingtransactions found, or if wala pang transactions,no transactions yet ang lalabas
 
         if not filtered_items:
             no_data_msg = "No matching transactions found" if query else "No transactions yet"
@@ -457,6 +473,6 @@ class HistoryPage(TransactionPage):
             self.historyTransaction_layout.addWidget(no_data_label)
             return
 
-        #display all transaction cards on the screen especially the mathching queries
+        # display all transaction cards on the screen especially the mathching queries
         for item in filtered_items:
             self.add_history(item)
