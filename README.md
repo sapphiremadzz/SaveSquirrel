@@ -20,11 +20,11 @@
  - Display total expenses
  - Display total net savings
  - Display the top 20 most recent transactions.
-### Savings Management Transaction Logging:** 
+### Savings Management Transaction Logging:
  - Add transactions (Income, Expense) with categories, enter amount, descriptions(optional), set dates 
  - Edit and update details of past transaction records 
  - Search transaction history instantly by category name or transaction ID
- - Delete a Transactions 
+ - Delete individual transaction records completely from the system
 ### Savings Goals Management:
  - Add and set savings goals with custom target goal titles (e.g., Buying a Laptop), set target amounts, and target completion dates. 
  - View and manage active savings goals include displaying remaining days and needed amounts.
@@ -316,7 +316,6 @@ The pop up dialog for creating or adding a new goal.
 * **No Progress Indicator:** Active goal cards show text metrics (days and amounts remaining). There is no separate goal progress percentage and progress bar in the active savings goal card.
 * **No Notifications:** The application does not provide any notifications regarding any approaching goal due dates or goal progress updates. So users manually view the progress to be aware.
 * **Fixed Currency:** Currency values are hardcoded as Philippines Peso (`₱`) across all the user interfaces; multi-currency selection options like `$` are not yet available.
-* **Static Categories:** Category values are fetched from a hardcoded dictionary in `transaction_page_view.py`. Custom user-defined categories cannot be added to the drop-down list.
 * **Single-user system:** The application is designed as a single-user desktop without multiple account login.
 ## Author
 #### Sophia Margaret B. Madronero
